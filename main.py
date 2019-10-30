@@ -1,7 +1,8 @@
 import network
 import time
 import tinypico as TinyPICO
-import blynklib
+import micropython
+# import blynklib
 
 from machine import Pin, PWM, ADC, TouchPad
 
@@ -53,7 +54,7 @@ connect()
 # TinyPICO.go_deepsleep()
 
 
-last_push_timestamp = 0
+# last_push_timestamp = 0
 
 # while True:
 #     blynk.run()
