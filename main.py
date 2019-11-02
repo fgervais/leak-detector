@@ -2,11 +2,20 @@ import network
 import time
 import tinypico as TinyPICO
 import micropython
-# import blynklib
+import esp32
+import blynklib
+import secret
 
 from machine import Pin, PWM, ADC, TouchPad
 
-import secret
+
+BEACON_VPIN = 1
+LEAK_LED_VPIN = 2
+
+LEAK_CAP_THRESHOLD = 50
+
+LEAK_TOUCHPAD_PIN = 33
+BUZZER_PIN = 25
 
 
 def connect():
@@ -19,47 +28,85 @@ def connect():
             time.sleep(1)
     print('network config:', wlan.ifconfig())
 
+def is_leak():
+    try:
+        if leak_detect_pad.read() < LEAK_CAP_THRESHOLD:
+            return True
+    except:
+        return True
+
+    return False
 
 
-# vbat = ADC(Pin(36))
-buzzer = PWM(Pin(25))
+class Device:
+    def __init__(self, blynk):
+        self.blynk = blynk
 
-leak_detect_pad = TouchPad(Pin(4))
-leak_detect_pad.config(500)
+    def beacon(self):
+        self.blynk.virtual_write(
+            BEACON_VPIN,
+            TinyPICO.get_battery_voltage())
+        self.blynk.run()
 
-# blynk = blynklib.Blynk(secret.BLYNK_AUTH)
+    @property
+    def leak_led(self):
+        return False
+
+    @leak_led.setter
+    def leak_led(self, state):
+        self.blynk.virtual_write(LEAK_LED_VPIN, 255 if state else 0)
+        self.blynk.run()
+
+    def leak_detected(self):
+        self.leak_led = True
+
+        self.blynk.notify("A leak has been detected!");
+        self.blynk.run()
+
+buzzer = PWM(Pin(BUZZER_PIN))
+
+leak_detect_pad = TouchPad(Pin(LEAK_TOUCHPAD_PIN))
+leak_detect_pad.config(LEAK_CAP_THRESHOLD)
+
+blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
+dishwasher = Device(blynk)
 
 
-# Say hello
 print("\nHello from TinyPICO!")
 print("--------------------\n")
 
-# Show some info on boot
-print("Battery Voltage is {}V".format( TinyPICO.get_battery_voltage() ) )
-print("Battery Charge State is {}\n".format( TinyPICO.get_battery_charging() ) )
+print("Battery Voltage is {}V".format(TinyPICO.get_battery_voltage()))
+print("Battery Charge State is {}\n".format(TinyPICO.get_battery_charging()))
 
-# Show available memory
 print("Memory Info - micropython.mem_info()")
 print("------------------------------------")
 micropython.mem_info()
 
 
 connect()
-
-# import random
-# blynk.virtual_write(1, random.randint(0, 255))
+blynk.run()
 
 
-# esp32.wake_on_touch(True)
-# TinyPICO.go_deepsleep()
+sleep_time = 1 * 24 * 60 * 60 * 1000 # 1 week
 
+if not is_leak():
+    print("There is no leak")
+    dishwasher.leak_led = False
+    dishwasher.beacon()
+    esp32.wake_on_touch(True)
+else:
+    print("A leak has been detected!")
+    dishwasher.leak_detected()
+    esp32.wake_on_touch(False)
+    sleep_time = 5 * 60 * 1000 # 5 minutes
 
-# last_push_timestamp = 0
+blynk.disconnect()
+blynk.run()
 
-# while True:
-#     blynk.run()
+print("Going to sleep")
+TinyPICO.go_deepsleep(sleep_time)
 
-    # if (time.time() > last_push_timestamp + 30):
-    #     blynk.virtual_write(1, random.randint(0, 255))
+print("not reached")
 
-    #     last_push_timestamp = time.time()
+while True:
+    pass
