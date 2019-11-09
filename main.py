@@ -63,7 +63,7 @@ class Device:
         self.blynk.notify("A leak has been detected!");
         self.blynk.run()
 
-buzzer = PWM(Pin(BUZZER_PIN))
+# buzzer = PWM(Pin(BUZZER_PIN))
 
 leak_detect_pad = TouchPad(Pin(LEAK_TOUCHPAD_PIN))
 leak_detect_pad.config(LEAK_CAP_THRESHOLD)
@@ -72,22 +72,22 @@ blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
 dishwasher = Device(blynk)
 
 
-print("\nHello from TinyPICO!")
-print("--------------------\n")
+# print("\nHello from TinyPICO!")
+# print("--------------------\n")
 
-print("Battery Voltage is {}V".format(TinyPICO.get_battery_voltage()))
-print("Battery Charge State is {}\n".format(TinyPICO.get_battery_charging()))
+# print("Battery Voltage is {}V".format(TinyPICO.get_battery_voltage()))
+# print("Battery Charge State is {}\n".format(TinyPICO.get_battery_charging()))
 
-print("Memory Info - micropython.mem_info()")
-print("------------------------------------")
-micropython.mem_info()
+# print("Memory Info - micropython.mem_info()")
+# print("------------------------------------")
+# micropython.mem_info()
 
 
 connect()
 blynk.run()
 
 
-sleep_time = 1 * 24 * 60 * 60 * 1000 # 1 week
+sleep_time = 1 * 60 * 60 * 1000 # 1 week
 
 if not is_leak():
     print("There is no leak")
