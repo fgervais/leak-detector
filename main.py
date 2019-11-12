@@ -44,8 +44,7 @@ def show_leak_cap_value():
     except:
         value = 0
 
-    if value < LEAK_CAP_THRESHOLD:
-        print(value)
+    print("Leak capacitance: " + str(value))
 
 
 class Device:
@@ -94,6 +93,8 @@ dishwasher = Device(blynk)
 
 connect()
 blynk.run()
+
+show_leak_cap_value()
 
 if not is_leak():
     print("There is no leak")
