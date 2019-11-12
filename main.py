@@ -11,6 +11,7 @@ from machine import Pin, PWM, ADC, TouchPad
 
 BEACON_VPIN = 1
 LEAK_LED_VPIN = 2
+CHARGING_VPIN = 3
 
 LEAK_CAP_THRESHOLD = 50
 
@@ -66,11 +67,21 @@ class Device:
         self.blynk.virtual_write(LEAK_LED_VPIN, 255 if state else 0)
         self.blynk.run()
 
+    @property
+    def charging(self):
+        return False
+
+    @charging.setter
+    def charging(self, state):
+        self.blynk.virtual_write(CHARGING_VPIN, 255 if state else 0)
+        self.blynk.run()
+
     def leak_detected(self):
         self.leak_led = True
 
         self.blynk.notify("A leak has been detected!");
         self.blynk.run()
+
 
 # buzzer = PWM(Pin(BUZZER_PIN))
 
@@ -98,7 +109,12 @@ else:
 
 if TinyPICO.get_battery_charging():
     print("Charging")
+    dishwasher.charging = True
     sleep_time = 5 * 60 * 1000 # 5 minutes
+else:
+    print("Not charging")
+    dishwasher.charging = False
+
 
 blynk.disconnect()
 
