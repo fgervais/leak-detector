@@ -81,32 +81,23 @@ blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
 dishwasher = Device(blynk)
 
 
-# print("\nHello from TinyPICO!")
-# print("--------------------\n")
-
-# print("Battery Voltage is {}V".format(TinyPICO.get_battery_voltage()))
-# print("Battery Charge State is {}\n".format(TinyPICO.get_battery_charging()))
-
-# print("Memory Info - micropython.mem_info()")
-# print("------------------------------------")
-# micropython.mem_info()
-
-
 connect()
 blynk.run()
-
-
-sleep_time = 1 * 60 * 60 * 1000 # 1 week
 
 if not is_leak():
     print("There is no leak")
     dishwasher.leak_led = False
     dishwasher.beacon()
     esp32.wake_on_touch(True)
+    sleep_time = 1 * 60 * 60 * 1000 # 1 week
 else:
     print("A leak has been detected!")
     dishwasher.leak_detected()
     esp32.wake_on_touch(False)
+    sleep_time = 5 * 60 * 1000 # 5 minutes
+
+if TinyPICO.get_battery_charging():
+    print("Charging")
     sleep_time = 5 * 60 * 1000 # 5 minutes
 
 blynk.disconnect()
