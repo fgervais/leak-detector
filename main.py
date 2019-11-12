@@ -101,7 +101,6 @@ if TinyPICO.get_battery_charging():
     sleep_time = 5 * 60 * 1000 # 5 minutes
 
 blynk.disconnect()
-blynk.run()
 
 print("Going to sleep")
 TinyPICO.go_deepsleep(sleep_time)
