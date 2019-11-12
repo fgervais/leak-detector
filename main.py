@@ -37,6 +37,15 @@ def is_leak():
 
     return False
 
+def show_leak_cap_value():
+    try:
+        value = leak_detect_pad.read()
+    except:
+        value = 0
+
+    if value < LEAK_CAP_THRESHOLD:
+        print(value)
+
 
 class Device:
     def __init__(self, blynk):
@@ -81,17 +90,6 @@ dishwasher = Device(blynk)
 # print("Memory Info - micropython.mem_info()")
 # print("------------------------------------")
 # micropython.mem_info()
-
-while True:
-    try:
-        value = leak_detect_pad.read()
-    except:
-        value = 0
-
-    if value < LEAK_CAP_THRESHOLD:
-        print(value)
-
-    time.sleep(1)
 
 
 connect()
