@@ -48,15 +48,26 @@ def show_leak_cap_value():
 
 
 class Device:
-    def __init__(self, blynk, buzzer_pwm):
+    def __init__(self, blynk, buzzer_pwm, wifi_connect_function):
         self.blynk = blynk
         self.buzzer_pwm = buzzer_pwm
+        self.wifi_connect_function = wifi_connect_function
+
+        self.connected = False
+
+    def blynk_virtual_write(self, vpin, value):
+        if not self.connected:
+            self.wifi_connect_function()
+            self.blynk.connect()
+            self.connected = True
+
+        self.blynk.virtual_write(vpin, value)
+        self.blynk.run()
 
     def beacon(self):
-        self.blynk.virtual_write(
+        self.blynk_virtual_write(
             BEACON_VPIN,
             TinyPICO.get_battery_voltage())
-        self.blynk.run()
 
     def alarm(self, seconds):
         start_time = time.time()
@@ -73,8 +84,7 @@ class Device:
 
     @leak_led.setter
     def leak_led(self, state):
-        self.blynk.virtual_write(LEAK_LED_VPIN, 255 if state else 0)
-        self.blynk.run()
+        self.blynk_virtual_write(LEAK_LED_VPIN, 255 if state else 0)
 
     @property
     def charging(self):
@@ -82,14 +92,17 @@ class Device:
 
     @charging.setter
     def charging(self, state):
-        self.blynk.virtual_write(CHARGING_VPIN, 255 if state else 0)
-        self.blynk.run()
+        self.blynk_virtual_write(CHARGING_VPIN, 255 if state else 0)
 
     def leak_detected(self):
         self.leak_led = True
 
         self.blynk.notify("A leak has been detected!");
         self.blynk.run()
+
+    def teardown(self):
+        if self.connected:
+            self.blynk.disconnect()
 
 
 buzzer = PWM(Pin(BUZZER_PIN), freq=4000, duty=512)
@@ -103,10 +116,7 @@ rtc = RTC()
 print("RTC memory: {}".format(rtc.memory()))
 
 blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
-dishwasher = Device(blynk, buzzer)
-
-connect()
-blynk.run()
+dishwasher = Device(blynk, buzzer, connect)
 
 show_leak_cap_value()
 
@@ -136,8 +146,7 @@ else:
     print("Not charging")
     dishwasher.charging = False
 
-
-blynk.disconnect()
+dishwasher.teardown()
 
 print("Going to sleep")
 TinyPICO.go_deepsleep(sleep_time)
