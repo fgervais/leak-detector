@@ -58,12 +58,14 @@ class Device:
             TinyPICO.get_battery_voltage())
         self.blynk.run()
 
-    def alarm(self):
-        for i in range(3):
-            self.buzzer_pwm.duty(512)
-            time.sleep(0.25)
-            self.buzzer_pwm.duty(0)
-            time.sleep(0.25)
+    def alarm(self, seconds):
+        start_time = time.time()
+        while time.time() < start_time + seconds:
+            for i in range(3):
+                self.buzzer_pwm.duty(512)
+                time.sleep(0.25)
+                self.buzzer_pwm.duty(0)
+                time.sleep(0.25)
 
     @property
     def leak_led(self):
@@ -121,9 +123,7 @@ else:
         dishwasher.leak_detected()
         rtc.memory() = b'\x01'
 
-    for i in range(30):
-        dishwasher.alarm()
-        time.sleep(2)
+    dishwasher.alarm(60)
 
     esp32.wake_on_touch(False)
     sleep_time = 3 * 60 * 1000 # 3 minutes
