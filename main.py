@@ -48,14 +48,22 @@ def show_leak_cap_value():
 
 
 class Device:
-    def __init__(self, blynk):
+    def __init__(self, blynk, buzzer_pwm):
         self.blynk = blynk
+        self.buzzer_pwm = buzzer_pwm
 
     def beacon(self):
         self.blynk.virtual_write(
             BEACON_VPIN,
             TinyPICO.get_battery_voltage())
         self.blynk.run()
+
+    def alarm(self):
+        for i in range(3):
+            self.buzzer_pwm.duty(512)
+            time.sleep(0.25)
+            self.buzzer_pwm.duty(0)
+            time.sleep(0.25)
 
     @property
     def leak_led(self):
@@ -82,14 +90,15 @@ class Device:
         self.blynk.run()
 
 
-# buzzer = PWM(Pin(BUZZER_PIN))
+buzzer = PWM(Pin(BUZZER_PIN), freq=4000, duty=512)
+time.sleep(0.05)
+buzzer.duty(0)
 
 leak_detect_pad = TouchPad(Pin(LEAK_TOUCHPAD_PIN))
 leak_detect_pad.config(LEAK_CAP_THRESHOLD)
 
 blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
-dishwasher = Device(blynk)
-
+dishwasher = Device(blynk, buzzer)
 
 connect()
 blynk.run()
@@ -106,7 +115,7 @@ else:
     print("A leak has been detected!")
     dishwasher.leak_detected()
     esp32.wake_on_touch(False)
-    sleep_time = 5 * 60 * 1000 # 5 minutes
+    sleep_time = 1 * 60 * 1000 # 1 minutes
 
 if TinyPICO.get_battery_charging():
     print("Charging")
