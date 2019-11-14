@@ -55,13 +55,22 @@ class Device:
 
         self.connected = False
 
-    def blynk_virtual_write(self, vpin, value):
+    def connect(self):
         if not self.connected:
             self.wifi_connect_function()
             self.blynk.connect()
             self.connected = True
 
+    def blynk_virtual_write(self, vpin, value):
+        self.connect()
+
         self.blynk.virtual_write(vpin, value)
+        self.blynk.run()
+
+    def blynk_notify(self, msg):
+        self.connect()
+
+        self.blynk.notify(msg);
         self.blynk.run()
 
     def beacon(self):
@@ -96,9 +105,7 @@ class Device:
 
     def leak_detected(self):
         self.leak_led = True
-
-        self.blynk.notify("A leak has been detected!");
-        self.blynk.run()
+        self.blynk_notify("A leak has been detected!");
 
     def teardown(self):
         if self.connected:
