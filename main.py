@@ -115,7 +115,10 @@ else:
     print("A leak has been detected!")
     dishwasher.leak_detected()
     esp32.wake_on_touch(False)
-    sleep_time = 1 * 60 * 1000 # 1 minutes
+    for i in range(30):
+        dishwasher.alarm()
+        time.sleep(2)
+    sleep_time = 3 * 60 * 1000 # 3 minutes
 
 if TinyPICO.get_battery_charging():
     print("Charging")
