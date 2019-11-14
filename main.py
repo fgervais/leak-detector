@@ -6,7 +6,7 @@ import esp32
 import blynklib
 import secret
 
-from machine import Pin, PWM, ADC, TouchPad
+from machine import Pin, PWM, ADC, TouchPad, RTC
 
 
 BEACON_VPIN = 1
@@ -97,6 +97,9 @@ buzzer.duty(0)
 leak_detect_pad = TouchPad(Pin(LEAK_TOUCHPAD_PIN))
 leak_detect_pad.config(LEAK_CAP_THRESHOLD)
 
+rtc = RTC()
+print("RTC memory: {}".format(rtc.memory()))
+
 blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
 dishwasher = Device(blynk, buzzer)
 
@@ -113,11 +116,16 @@ if not is_leak():
     sleep_time = 1 * 60 * 60 * 1000 # 1 week
 else:
     print("A leak has been detected!")
-    dishwasher.leak_detected()
-    esp32.wake_on_touch(False)
+    error_reported = True if rtc.memory() else False
+    if not error_reported:
+        dishwasher.leak_detected()
+        rtc.memory() = b'\x01'
+
     for i in range(30):
         dishwasher.alarm()
         time.sleep(2)
+
+    esp32.wake_on_touch(False)
     sleep_time = 3 * 60 * 1000 # 3 minutes
 
 if TinyPICO.get_battery_charging():
