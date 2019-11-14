@@ -121,6 +121,7 @@ leak_detect_pad.config(LEAK_CAP_THRESHOLD)
 
 rtc = RTC()
 print("RTC memory: {}".format(rtc.memory()))
+error_reported = True if rtc.memory() else False
 
 blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
 dishwasher = Device(blynk, buzzer, connect)
@@ -135,7 +136,6 @@ if not is_leak():
     sleep_time = 1 * 60 * 60 * 1000 # 1 week
 else:
     print("A leak has been detected!")
-    error_reported = True if rtc.memory() else False
     if not error_reported:
         dishwasher.leak_detected()
         rtc.memory(b'\x01')
