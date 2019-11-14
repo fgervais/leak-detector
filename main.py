@@ -121,7 +121,7 @@ else:
     error_reported = True if rtc.memory() else False
     if not error_reported:
         dishwasher.leak_detected()
-        rtc.memory() = b'\x01'
+        rtc.memory(b'\x01')
 
     dishwasher.alarm(60)
 
