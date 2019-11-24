@@ -46,6 +46,9 @@ def show_leak_cap_value():
 
     print("Leak capacitance: " + str(value))
 
+def usb_connected():
+    return (TinyPICO.get_battery_voltage() == 3.7)
+
 
 class Device:
     def __init__(self, blynk, buzzer_pwm, wifi_connect_function):
@@ -145,7 +148,7 @@ else:
     esp32.wake_on_touch(False)
     sleep_time = 3 * 60 * 1000 # 3 minutes
 
-if TinyPICO.get_battery_charging():
+if usb_connected() and TinyPICO.get_battery_charging():
     print("Charging")
     dishwasher.charging = True
     sleep_time = 5 * 60 * 1000 # 5 minutes
