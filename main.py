@@ -151,7 +151,7 @@ else:
 if usb_connected() and TinyPICO.get_battery_charging():
     print("Charging")
     dishwasher.charging = True
-    sleep_time = 5 * 60 * 1000 # 5 minutes
+    sleep_time = 30 * 60 * 1000 # 30 minutes
 else:
     print("Not charging")
     dishwasher.charging = False
