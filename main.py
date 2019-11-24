@@ -5,6 +5,7 @@ import micropython
 import esp32
 import blynklib
 import secret
+import machine
 
 from machine import Pin, PWM, ADC, TouchPad, RTC
 
@@ -115,7 +116,11 @@ class Device:
             self.blynk.disconnect()
 
 
-buzzer = PWM(Pin(BUZZER_PIN), freq=4000, duty=512)
+initial_buzzer_duty = 0
+if machine.reset_cause() == machine.PWRON_RESET:
+    initial_buzzer_duty = 512
+
+buzzer = PWM(Pin(BUZZER_PIN), freq=4000, duty=initial_buzzer_duty)
 time.sleep(0.05)
 buzzer.duty(0)
 
