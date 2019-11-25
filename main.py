@@ -20,8 +20,8 @@ LEAK_TOUCHPAD_PIN = 33
 BUZZER_PIN = 25
 
 
+wlan = network.WLAN(network.STA_IF)
 def connect():
-    wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     if not wlan.isconnected():
         print('connecting to network...')
@@ -164,6 +164,11 @@ else:
 
 
 dishwasher.teardown()
+
+if wlan.isconnected():
+    wlan.disconnect()
+    while wlan.isconnected():
+        time.sleep(1)
 
 print("Going to sleep")
 TinyPICO.go_deepsleep(sleep_time)
