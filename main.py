@@ -141,7 +141,7 @@ if not is_leak():
     dishwasher.leak_led = False
     dishwasher.beacon()
     esp32.wake_on_touch(True)
-    sleep_time = 1 * 60 * 60 * 1000 # 1 week
+    sleep_time = 7 * 24 * 60 * 60 * 1000 # 1 week
 
     if usb_connected() and TinyPICO.get_battery_charging():
         print("Charging")
