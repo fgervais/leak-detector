@@ -160,7 +160,7 @@ else:
     dishwasher.alarm(60)
 
     esp32.wake_on_touch(False)
-    sleep_time = 3 * 60 * 1000 # 3 minutes
+    sleep_time = 0 # forever
 
 
 dishwasher.teardown()
