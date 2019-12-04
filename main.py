@@ -143,13 +143,8 @@ if not is_leak():
     esp32.wake_on_touch(True)
     sleep_time = 7 * 24 * 60 * 60 * 1000 # 1 week
 
-    if usb_connected() and TinyPICO.get_battery_charging():
-        print("Charging")
-        dishwasher.charging = True
-        sleep_time = 30 * 60 * 1000 # 30 minutes
-    else:
-        print("Not charging")
-        dishwasher.charging = False
+    print("Let say we are not charging")
+    dishwasher.charging = False
 
 else:
     print("A leak has been detected!")
