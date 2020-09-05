@@ -126,6 +126,10 @@ buzzer.duty(0)
 
 leak_detect_pad = TouchPad(Pin(LEAK_TOUCHPAD_PIN))
 leak_detect_pad.config(LEAK_CAP_THRESHOLD)
+print("Slowing down touch sensor measurement rate")
+esp32.set_touch_sensor_measurement_time(
+    0xffff, # 2.28885 Hz
+    0x1fff) # 1.02388 ms
 
 rtc = RTC()
 print("RTC memory: {}".format(rtc.memory()))
