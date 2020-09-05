@@ -156,6 +156,10 @@ else:
         dishwasher.leak_detected()
         rtc.memory(b'\x01')
 
+    # If the error was already reported, we should not be connected to wifi here.
+    # This is so we can go to sleep and wakeup and beep again without wasting
+    # energy on wifi for each loop.
+
     dishwasher.alarm(60)
 
     esp32.wake_on_touch(False)
