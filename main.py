@@ -13,6 +13,7 @@ from machine import Pin, PWM, ADC, TouchPad, RTC
 BEACON_VPIN = 1
 LEAK_LED_VPIN = 2
 CHARGING_VPIN = 3
+LEAK_VAL_VPIN = 4
 
 LEAK_CAP_THRESHOLD = 50
 
@@ -30,32 +31,16 @@ def connect():
             time.sleep(1)
     print('network config:', wlan.ifconfig())
 
-def is_leak():
-    try:
-        if leak_detect_pad.read() < LEAK_CAP_THRESHOLD:
-            return True
-    except:
-        return True
-
-    return False
-
-def show_leak_cap_value():
-    try:
-        value = leak_detect_pad.read()
-    except:
-        value = 0
-
-    print("Leak capacitance: " + str(value))
-
 def usb_connected():
     return (TinyPICO.get_battery_voltage() == 3.7)
 
 
 class Device:
-    def __init__(self, blynk, buzzer_pwm, wifi_connect_function):
+    def __init__(self, blynk, buzzer_pwm, wifi_connect_function, leak_pad):
         self.blynk = blynk
         self.buzzer_pwm = buzzer_pwm
         self.wifi_connect_function = wifi_connect_function
+        self.leak_pad = leak_pad
 
         self.connected = False
 
@@ -115,6 +100,24 @@ class Device:
         if self.connected:
             self.blynk.disconnect()
 
+    def is_leak(self):
+        try:
+            if self.leak_pad.read() < LEAK_CAP_THRESHOLD:
+                return True
+        except:
+            return True
+
+        return False
+
+    def show_leak_cap_value(self):
+        try:
+            value = self.leak_pad.read()
+        except:
+            value = 0
+
+        print("Leak capacitance: " + str(value))
+        self.blynk_virtual_write(LEAK_VAL_VPIN, value)
+
 
 initial_buzzer_duty = 0
 if machine.reset_cause() == machine.PWRON_RESET:
@@ -136,14 +139,19 @@ print("RTC memory: {}".format(rtc.memory()))
 error_reported = True if rtc.memory() else False
 
 blynk = blynklib.Blynk(secret.BLYNK_AUTH, log=print)
-dishwasher = Device(blynk, buzzer, connect)
+dishwasher = Device(blynk, buzzer, connect, leak_detect_pad)
 
-show_leak_cap_value()
-
-if not is_leak():
+if not dishwasher.is_leak():
     print("There is no leak")
     dishwasher.leak_led = False
     dishwasher.beacon()
+    # The touchpad reading gets lower when wifi is activated so it's possible
+    # that we get here (there is no leak) but still that the capacitance
+    # shown below is below LEAK_CAP_THRESHOLD since here we sent a beacon
+    # hence we are connected to wifi.
+    # It doesn't affect a real leak since a leak bottoms out the capacitance
+    # to 0.
+    dishwasher.show_leak_cap_value()
     esp32.wake_on_touch(True)
     sleep_time = 7 * 24 * 60 * 60 * 1000 # 1 week
 
@@ -154,6 +162,7 @@ else:
     print("A leak has been detected!")
     if not error_reported:
         dishwasher.leak_detected()
+        dishwasher.show_leak_cap_value()
         rtc.memory(b'\x01')
 
     # If the error was already reported, we should not be connected to wifi here.
