@@ -12,9 +12,9 @@ this:
 
 ## Blynk
 
-![Blynk Project](assets/img/blynk_project.png)
+<img src="assets/img/blynk_project.png" alt="Blynk Project" width="200">
 
 I haven't tested it but this QR code should give you a complete copy of my
 project if scanned in the Blynk app.
 
-![Blynk Project QR](assets/img/blynk_clone.jpg)
+<img src="assets/img/blynk_clone.jpg" alt="Blynk Project QR" width="300">
