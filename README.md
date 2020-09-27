@@ -22,9 +22,6 @@ dead in 37 weeks.
 Note that this was before changing the battery type and [optimizing](https://github.com/fgervais/leak-detector/commit/07dddd6354a1dfdce8fd6b8dc646baeb9ef110fd)
 the touch sensor power consumption. The battery should last much longer now.
 
-
-
-
 Blynk Project | Blynk Project Clone QR
 :-------------------------:|:-------------------------:
 <img src="assets/img/blynk_project.png" alt="Blynk Project" width="200">  |  <img src="assets/img/blynk_clone.jpg" alt="Blynk Project QR" width="200">
