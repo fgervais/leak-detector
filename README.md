@@ -5,7 +5,7 @@ Detect leaks, trigger an alarm and send a notification to your phone.
 It can be used to save your wood flooring for example as wiping the water off
 a couple minutes sooner can make a difference.
 
-![TinyPICO on the motherboard](assets/img/board.png)
+![TinyPICO on the motherboard](assets/img/board.jpg)
 
 The detector gets controlled by a [Blynk](https://blynk.io/) that looks like
 this:
