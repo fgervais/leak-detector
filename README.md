@@ -63,3 +63,10 @@ Blynk Project | Blynk Project Clone QR
 
 The QR code should give you a complete copy of my project if scanned in the
 Blynk app.
+
+# Hardware
+
+The board (rev1) and the BOM are accessible here:
+
+- https://oshpark.com/shared_projects/Uk5klm7L
+- https://www.digikey.ca/short/z0c01q
